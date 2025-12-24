@@ -112,44 +112,106 @@ const useWeb3Store = create((set, get) => ({
     tokenData: { name: 'PepsiCoin', symbol: 'PC', totalSupply: '0' },
     provider: null,
     
-    connectWallet: async () => {
-        if (!window.ethereum) {
-showCustomToast('MetaMask not installed', 'error');
-       return false;
-        }
-        try {
-            const accounts = await window.ethereum.request({ 
-                method: 'eth_requestAccounts' 
-            });
-            
-            if (!accounts.length) {
-                showCustomToast('No accounts found','error');
-                return false;
-            }
+   connectWallet: async () => {
+    if (!window.ethereum) {
+        showCustomToast('MetaMask not installed', 'error');
+        return false;
+    }
 
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            
-            if (!signer) {
-                showCustomToast('Failed to get signer','error');
-                return false;
-            }
+    try {
+        // Step 1: Request accounts (this prompts connection if not already connected)
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
 
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            
-            set({ account: accounts[0], isConnected: true, contract, provider });
-            await get().fetchMetadata();
-            await get().refreshBalance();
-            
-            window.ethereum.removeListener('accountsChanged', get().handleAccountsChanged);
-            window.ethereum.on('accountsChanged', get().handleAccountsChanged);
-            
-            return true;
-        } catch (err) {
-            showCustomToast(err.message || 'Connection failed', 'error');
+        if (!accounts.length) {
+            showCustomToast('No accounts found', 'error');
             return false;
         }
-    },
+
+        // Step 2: Create provider and check current network
+        let provider = new ethers.BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+        const sepoliaChainId = 11155111n; // BigInt for ethers v6
+
+        if (network.chainId !== sepoliaChainId) {
+            try {
+                // Try to switch to Sepolia
+                await provider.send('wallet_switchEthereumChain', [
+                    { chainId: '0xaa36a7' } // Hex for 11155111
+                ]);
+                showCustomToast('Switched to Sepolia Testnet', 'success');
+            } catch (switchError) {
+                // If chain not added (error code 4902), add it first
+                if (switchError.code === 4902 || switchError?.data?.originalError?.code === 4902) {
+                    try {
+                        await provider.send('wallet_addEthereumChain', [
+                            {
+                                chainId: '0xaa36a7',
+                                chainName: 'Sepolia Testnet',
+                                nativeCurrency: {
+                                    name: 'Sepolia ETH',
+                                    symbol: 'ETH',
+                                    decimals: 18
+                                },
+                                rpcUrls: ['https://rpc.sepolia.org'], // Reliable public RPC
+                                blockExplorerUrls: ['https://sepolia.etherscan.io']
+                            }
+                        ]);
+                        showCustomToast('Added & switched to Sepolia Testnet', 'success');
+
+                        // After adding, switch again
+                        await provider.send('wallet_switchEthereumChain', [
+                            { chainId: '0xaa36a7' }
+                        ]);
+                    } catch (addError) {
+                        showCustomToast('Failed to add Sepolia network', 'error');
+                        return false;
+                    }
+                } else {
+                    showCustomToast('Please switch to Sepolia Testnet manually', 'error');
+                    return false;
+                }
+            }
+
+            // Recreate provider after network switch
+            provider = new ethers.BrowserProvider(window.ethereum);
+        }
+
+        // Step 3: Get signer and contract
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        // Step 4: Update store
+        set({ 
+            account: accounts[0], 
+            isConnected: true, 
+            contract, 
+            provider 
+        });
+
+        await get().fetchMetadata();
+        await get().refreshBalance();
+
+        // Step 5: Set up listeners
+        window.ethereum.removeListener('accountsChanged', get().handleAccountsChanged);
+        window.ethereum.on('accountsChanged', get().handleAccountsChanged);
+
+        // Reload on manual chain change (safest for most dApps)
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
+
+        function handleChainChanged() {
+            window.location.reload();
+        }
+
+        return true;
+    } catch (err) {
+        console.error(err);
+        showCustomToast(err.message || 'Connection failed', 'error');
+        return false;
+    }
+},
 
     handleAccountsChanged: (accounts) => {
         if (accounts.length === 0) {
