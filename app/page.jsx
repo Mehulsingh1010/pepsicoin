@@ -1362,7 +1362,7 @@ export default function PepsiCoinApp() {
 
       {/* ACCOUNT SWITCHER MODAL */}
       {showAccountModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0  z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div
             ref={accountModalRef}
             className="bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] p-8 max-w-md w-full mx-4"
