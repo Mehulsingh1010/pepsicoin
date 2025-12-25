@@ -65,13 +65,12 @@ export default function PepsiCoinApp() {
     const logo = movingLogoRef.current;
     if (!logo) return;
 
-    // Use xPercent/yPercent instead of transform string to prevent CSS conflicts
     gsap.set(logo, {
       position: "fixed",
       top: "43.5%",
       left: "50%",
       xPercent: -50,
-      yPercent: -50,
+  yPercent: -50,
       marginLeft: "15vw",
       width: "192px",
       height: "192px",
@@ -90,21 +89,25 @@ export default function PepsiCoinApp() {
     });
   }, []);
 
-  // SCROLL DETECTION
+  // SCROLL DETECTION: Hide flying logo instantly when scrolling inside dashboard
   useEffect(() => {
     if (!isLaunched || !mainRef.current) return;
 
     const mainElement = mainRef.current;
+
     const handleScroll = () => {
       const scrollTop = mainElement.scrollTop;
+
       if (scrollTop > 1) {
-        gsap.to(movingLogoRef.current, { opacity: 0, duration: 0.1 });
+        gsap.to(movingLogoRef.current, { opacity: 0, duration: 0 }); // Instant hide
       } else {
-        gsap.to(movingLogoRef.current, { opacity: 1, duration: 0.1 });
+        gsap.to(movingLogoRef.current, { opacity: 1, duration: 0 }); // Instant show
       }
     };
 
+    // Initial state
     handleScroll();
+
     mainElement.addEventListener("scroll", handleScroll);
     return () => mainElement.removeEventListener("scroll", handleScroll);
   }, [isLaunched]);
@@ -132,11 +135,12 @@ export default function PepsiCoinApp() {
         scale: 1,
         rotation: 0,
         top: "145px",
-        left: "117px",
-        xPercent: 0, // Reset centering for dashboard position
-        yPercent: 0,
+        left: "85px",
+        xPercent: 0, // ADD THIS
+  yPercent: 0, // ADD THIS
         width: "86px",
         height: "86px",
+        transform: "none",
         marginLeft: 0,
         duration: 1.2,
         ease: "power4.inOut",
@@ -164,7 +168,7 @@ export default function PepsiCoinApp() {
           gsap.set(movingLogoRef.current, { opacity: 1 });
 
           const tl = gsap.timeline({
-            defaults: { ease: "expo.inOut" },
+            defaults: { ease: "expo.inOut" }, // Changed to expo for smoother feel
             onComplete: () => {
               setIsLaunched(false);
               setCounterBalance("0.00");
@@ -179,6 +183,7 @@ export default function PepsiCoinApp() {
               0
             )
             .to(portalLayerRef.current, { opacity: 1, duration: 1 }, 0.2)
+            // 1. Scale up to "Portal" size
             .to(
               movingLogoRef.current,
               {
@@ -189,6 +194,7 @@ export default function PepsiCoinApp() {
               },
               0.1
             )
+            // 2. The "Snap Back" - Notice we use xPercent/yPercent instead of transform string
             .to(
               movingLogoRef.current,
               {
@@ -196,8 +202,8 @@ export default function PepsiCoinApp() {
                 rotation: 0,
                 top: "43.5%",
                 left: "50%",
-                xPercent: -50,
-                yPercent: -50,
+                xPercent: -50, // ADD THIS
+  yPercent: -50, // ADD THIS
                 marginLeft: "15vw",
                 width: "192px",
                 height: "192px",
@@ -221,7 +227,6 @@ export default function PepsiCoinApp() {
       });
     }
   };
-
   const handleOpenAccountModal = async () => {
     if (!(window as any).ethereum) {
       showToast("MetaMask not installed", "error");
@@ -256,8 +261,8 @@ export default function PepsiCoinApp() {
         signer
       );
 
-      let isOwner = false;
       let contractOwner = null;
+      let isOwner = false;
       try {
         contractOwner = await contract.owner();
         isOwner = contractOwner.toLowerCase() === newAccount.toLowerCase();
@@ -296,11 +301,21 @@ export default function PepsiCoinApp() {
         className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#00275C]"
         style={{ opacity: isLaunched ? 0 : 1 }}
       >
+        {/* MAIN TITLE */}
         <div
           ref={textGroupRef}
           className="relative flex items-center uppercase font-black italic tracking-tighter text-[11vw] leading-none mb-4"
         >
-          {/* Main Title logic */}
+          <div
+            className="absolute inset-0 pointer-events-none overflow-hidden"
+            style={{
+              background:
+                "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
+              transform: "translateX(-150%)",
+              animation: "shine 2.5s ease-in-out 2s forwards",
+            }}
+          />
+
           <div
             className="flex items-center relative z-10 transition-all duration-700 ease-out"
             style={{
@@ -315,7 +330,6 @@ export default function PepsiCoinApp() {
             <span className="text-[#E30613] ml-6">C</span>
           </div>
 
-          {/* Transparent Spacer for the logo gap */}
           <div
             className="w-32 h-32 md:w-48 md:h-48 cursor-pointer pointer-events-auto mx-4 relative z-10"
             onClick={handleLaunch}
@@ -335,6 +349,7 @@ export default function PepsiCoinApp() {
           </span>
         </div>
 
+        {/* SLOGAN */}
         <div
           ref={sloganRef}
           className="text-center space-y-4 transition-all duration-700 ease-out"
@@ -359,14 +374,14 @@ export default function PepsiCoinApp() {
         </div>
       </div>
 
-      {/* FLYING LOGO - Cleaned classes (no CSS transitions) */}
-      <img
-        ref={movingLogoRef}
-        src="/logo2.png"
-        alt="PepsiCoin Logo"
-        className="fixed object-contain pointer-events-none will-change-transform z-[150]"
-      />
-
+      {/* FLYING LOGO — fixed overlay, hides instantly on scroll */}
+<img
+  ref={movingLogoRef}
+  src="/logo2.png"
+  alt="PepsiCoin Logo"
+  className="fixed object-contain pointer-events-none will-change-transform z-50" 
+/>
+      {/* DASHBOARD */}
       {isLaunched && (
         <Dashboard
           mainRef={mainRef}

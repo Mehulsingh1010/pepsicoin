@@ -34,7 +34,7 @@ export default function Dashboard({ mainRef, counterBalance, onReturnToLanding, 
     <main ref={mainRef} className="relative overflow-auto w-full h-full p-4 md:p-16 flex flex-col bg-[#020202] text-white">
       
       {/* HEADER SECTION */}
-  <header className="px-8 mb-14 py-10 flex flex-col lg:flex-row justify-between items-center lg:items-center gap-12">
+  <header className="pr-[32px] mb-14 py-10 flex flex-col lg:flex-row justify-between items-center lg:items-center gap-12">
   
   {/* LEFT SIDE: LOGO & BRANDING */}
   <div className="flex flex-col md:flex-row items-center gap-6 w-full lg:w-auto">
