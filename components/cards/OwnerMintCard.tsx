@@ -32,7 +32,7 @@ export default function OwnerMintCard() {
   };
 
   return (
-    <div className={`bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between relative group ${!isOwner ? "blur-sm hover:blur-none" : ""} transition-all duration-300`}>
+    <div className={`bg-[#0a0a0a] border h-full border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between relative group ${!isOwner ? "blur-sm hover:blur-none" : ""} transition-all duration-300`}>
       {!isOwner && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity">
           <p className="text-blue-400 font-black italic text-2xl tracking-widest text-center px-8 drop-shadow-[0_0_20px_rgba(250,204,21,0.8)]">
