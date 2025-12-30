@@ -136,8 +136,8 @@ export default function PepsiCoinApp() {
         rotation: 0,
         top: "145px",
         left: "85px",
-        xPercent: 0, // ADD THIS
-  yPercent: 0, // ADD THIS
+        xPercent: 0, 
+  yPercent: 0, 
         width: "86px",
         height: "86px",
         transform: "none",
@@ -168,7 +168,7 @@ export default function PepsiCoinApp() {
           gsap.set(movingLogoRef.current, { opacity: 1 });
 
           const tl = gsap.timeline({
-            defaults: { ease: "expo.inOut" }, // Changed to expo for smoother feel
+            defaults: { ease: "expo.inOut" },
             onComplete: () => {
               setIsLaunched(false);
               setCounterBalance("0.00");

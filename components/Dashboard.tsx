@@ -9,8 +9,8 @@ import QuickTransferCard from "./cards/QuickTransferCard";
 import OwnerMintCard from "./cards/OwnerMintCard";
 import BurnCard from "./cards/BurnCard";
 import FaucetCard from "./cards/FaucetCard";
-import ApproveCard from "./cards/ApproveCard";
-import OwnerTransferFromCard from "./cards/OwnerTransferFromCard";
+import ApproveCard from "./cards/AllowanceCard";
+import OwnerTransferFromCard from "./cards/TransferFromCard";
 import { ConfirmationModal } from "./ConfirmationModal";
 
 export default function Dashboard({ mainRef, counterBalance, onReturnToLanding, onOpenAccountModal }: any) {
@@ -27,7 +27,7 @@ export default function Dashboard({ mainRef, counterBalance, onReturnToLanding, 
   const cards = [
     <TokenMetricsCard key="1" />,
     <QuickTransferCard key="2" />,
-    <OwnerMintCard key="3" />,
+    isOwner && <OwnerMintCard key="3" />,
     <BurnCard key="4" />,
     <FaucetCard key="5" />,
     <ApproveCard key="6" />,
