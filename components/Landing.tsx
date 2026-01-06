@@ -72,7 +72,7 @@ export default function Landing({ portalLayerRef, textGroupRef, sloganRef, onLau
         </p>
         <div className="h-[1px] w-64 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto" />
         <button onClick={onLaunch} className="text-[10px] font-bold tracking-widest text-white/40 hover:text-white transition-colors">
-          CLICK LOGO TO INITIALIZE NODE
+          CLICK LOGO TO INITIALIZE CONNECTION
         </button>
       </div>
 

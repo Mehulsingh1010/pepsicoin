@@ -369,7 +369,7 @@ export default function PepsiCoinApp() {
             onClick={handleLaunch}
             className="text-[10px] font-bold tracking-widest text-white/40 hover:text-white transition-colors"
           >
-            CLICK LOGO TO INITIALIZE NODE
+            CLICK LOGO TO INITIALIZE CONNECTION
           </button>
         </div>
       </div>
